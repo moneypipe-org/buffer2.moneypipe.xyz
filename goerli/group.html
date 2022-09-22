@@ -95,9 +95,7 @@ const draw = (val) => {
 document.addEventListener("DOMContentLoaded", async () => {
   try {
     let account = await buffer.current_account()
-    debugger;
     let b = await buffer.get(Params.address)
-    console.log("b", b)
     let etherscan = "https://goerli.etherscan.io/address/"
     document.querySelector("#title").textContent = b.title;
     document.querySelector("#addr").innerHTML = `Group address: <a target="_blank" href="${etherscan}${Params.address}#internaltx">${Params.address}</a><br><br>Send ETH to this group to auto-distribute funds to the members:`
@@ -105,7 +103,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.querySelector("#address").href = "ethereum:" + Params.address
     QRCode.toCanvas(document.querySelector("#qr"), "ethereum:" + Params.address, function (error) {
       if (error) console.error(error)
-      console.log('success!');
     })
     document.querySelector(".reveal").addEventListener("click", (e) => {
       e.preventDefault()

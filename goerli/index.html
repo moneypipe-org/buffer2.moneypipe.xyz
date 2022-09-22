@@ -24,13 +24,8 @@ var buffer = new Moneypipe.buffer2({
 document.addEventListener("DOMContentLoaded", async () => {
   try {
     let account = await buffer.current_account()
-//    let groups = await buffer.groups(account)
-//    console.log("groups", groups)
     let groups2 = await buffer.find({ creator: account })
-    console.log("groups2", groups2)
-
     let g = []
-
     let limit = 0;
     for(let i=0; i<groups2.length; i++) {
       let addr = groups2[i]
@@ -47,11 +42,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     }
     document.querySelector(".loading").classList.add("hidden")
-    console.log("g", g)
-
-//    document.querySelector(".items").innerHTML = g.map((group) => {
-//      return `<a href="group#address=${group}">${group} <b id="_${group}"></b></a>`
-//    }).join("")
 
     for(let i=0; i<=limit; i++) {
       let addr = groups2[i]
@@ -59,11 +49,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         let merklescript = await buffer.merklescript(addr)
         document.querySelector("#_" + addr).innerHTML = merklescript.title
       } catch (e) {
-        console.log("error", e)
         break;
       }
     }
-//    console.log("groups", groups)
   } catch (e) {
     alert(e.message)
   }

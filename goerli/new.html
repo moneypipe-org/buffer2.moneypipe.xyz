@@ -128,7 +128,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         break;
       }
     }
-    console.log("limit", limit)
     try {
       let { tx, address } = await buffer.create({ index: limit, title, members })
       console.log("tx", tx)
