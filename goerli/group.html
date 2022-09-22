@@ -21,7 +21,7 @@
 <script src="https://unpkg.com/qrcode@1.5.0/build/qrcode.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/randomcolor/0.6.1/randomColor.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js"></script>
-<script src="https://unpkg.com/moneypipe@0.0.41/dist/moneypipe.js"></script>
+<script src="https://unpkg.com/moneypipe@0.0.42/dist/moneypipe.js"></script>
 <link href="/style.css" rel="stylesheet">
 <script id="template" type="text/x-handlebars-template">
   <input class='account' type='text' placeholder='address'>
@@ -116,16 +116,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.log("status", status)
     if (status) {
       document.querySelector("main").classList.remove("hidden")
-      document.querySelector("main .account").innerHTML = "You are a member: " + account
-      document.querySelector("main .total").innerHTML = `Group total recieved ETH: ${status.totalReceivedEth.toString()}`
-      document.querySelector("main .balance").innerHTML = `Can withdraw ETH: ${status.balanceEth.toString()}`
-      document.querySelector("main .withdrawn").innerHTML = `Withdrawn ETH: ${status.withdrawnEth.toString()}`
+      document.querySelector("main .account").innerHTML = `You are a member: <small>${account}</small>`
+      document.querySelector("main .total").innerHTML = status.totalReceivedEth.toString()
+      document.querySelector("main .balance").innerHTML = status.balanceEth.toString()
+      document.querySelector("main .withdrawn").innerHTML = status.withdrawnEth.toString()
 
       try {
-        document.querySelector("main .weth_total").innerHTML = `Group total WETH recieved: ${status.total_weth_received_in_eth.toString()}`
-        document.querySelector("main .total_weth_balance").innerHTML = `Total WETH balance: ${status.total_weth_balance_in_eth.toString()}`
-        document.querySelector("main .weth_balance").innerHTML = `Can withdraw WETH: ${status.user_weth_balance_in_eth.toString()}`
-        document.querySelector("main .weth_withdrawn").innerHTML = `Withdrawn WETH: ${status.user_weth_withdrawn_in_eth.toString()}`
+        document.querySelector("main .weth_total").innerHTML = status.total_weth_received_in_eth.toString()
+//        document.querySelector("main .total_weth_balance").innerHTML = status.total_weth_balance_in_eth.toString()
+        document.querySelector("main .weth_balance").innerHTML = status.user_weth_balance_in_eth.toString()
+        document.querySelector("main .weth_withdrawn").innerHTML = status.user_weth_withdrawn_in_eth.toString()
       } catch (e) {
       }
       document.querySelector("#withdraw").addEventListener("click", async (e) => {
@@ -173,20 +173,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     <a class='btn' href="https://buffer2.moneypipe.xyz/goerli/group#address=0x018782000F433d4dEfAb86dB90E1087a9aB64A46">Demo</a>
   </div>
 </nav>
-<main class='hidden'>
-  <h2 class='account'></h2>
-  <div class='total'></div>
-  <div class='balance'></div>
-  <div class='withdrawn'></div>
-  <div class='weth_total'></div>
-  <div class='weth_balance'></div>
-  <div class='total_weth_balance'></div>
-  <div class='weth_withdrawn'></div>
-  <button id='withdraw' class='btn'><i class="fa-solid fa-hand-holding-dollar"></i> withdraw</button>
-  <div class='withdrawing hidden'>
-    <i class="fa-solid fa-angle-up fa-flip"></i> withdrawing funds...
-  </div>
-</main>
 <header>
   <h1 id='title'></h1>
   <div id='addr'></div>
@@ -208,5 +194,32 @@ document.addEventListener("DOMContentLoaded", async () => {
   <div class='receivers hidden'>
   </div>
 </header>
+<main class='hidden'>
+  <h2 class='account'></h2>
+  <table>
+    <tr>
+      <th></th>
+      <th>total</th>
+      <th>you have withdrawn</th>
+      <th>you can withdraw</th>
+    </tr>
+    <tr>
+      <td>ETH</td>
+      <td class='total'></td>
+      <td class='withdrawn'></td>
+      <td class='balance'></td>
+    </tr>
+    <tr>
+      <td>WETH</td>
+      <td class='weth_total'></td>
+      <td class='weth_withdrawn'></td>
+      <td class='weth_balance'></td>
+    </tr>
+  </table>
+  <button id='withdraw' class='btn'><i class="fa-solid fa-hand-holding-dollar"></i> withdraw</button>
+  <div class='withdrawing hidden'>
+    <i class="fa-solid fa-angle-up fa-flip"></i> withdrawing funds...
+  </div>
+</main>
 </body>
 </html>

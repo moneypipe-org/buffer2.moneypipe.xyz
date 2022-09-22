@@ -1,6 +1,7 @@
 body {
   font-family: Sans-serif;
-  margin: 0;
+  margin: 0 auto;
+  max-width: 1000px;
 }
 /*
 .field {
@@ -17,15 +18,36 @@ body {
 }
 */
 main {
+/*
   background: rgba(0,0,0,0.916);
   color: rgba(255,255,255,0.8);
-  padding: 20px;
-  font-size: 14px;
+  */
+  background: #f6f8fa;
+  padding: 40px;
+  box-sizing: border-box;
+  font-size: 12px;
+  border-left: 5px solid black;
+  margin-top: 10px;
+}
+main table {
+  margin-top: 20px;
+  background: rgba(0,0,0,0.05);
+}
+main td, main th {
+  padding: 10px;
+  text-align: left;
+  font-size: 12px;
 }
 main h2 {
   margin: 0 0 5px;
-  color: gold;
+  color: black;
+  font-size: 30px;
+  letter-spacing: -2px;
+}
+main h2 small {
   font-size: 16px;
+  display: block;
+  letter-spacing: 0;
 }
 main .btn {
   margin: 10px 0 0;
@@ -160,7 +182,7 @@ ol {
   border: none;
 }
 nav {
-  padding: 20px;
+  padding: 30px;
 }
 nav .menu-item {
   padding: 10px;
