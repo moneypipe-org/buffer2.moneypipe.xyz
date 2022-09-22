@@ -1,0 +1,200 @@
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="moneypipe buffer" />
+<meta name="twitter:description" content="create a group to collect money and let members withdraw their share" />
+<meta name="twitter:image" content="https://buffer.moneypipe.xyz/buffer_poster.png" />
+<meta property="og:url" content="https://buffer.moneypipe.xyz" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="moneypipe buffer" />
+<meta property="og:description" content="create a group to collect money and let members withdraw their share" />
+<meta property="og:image" content="https://buffer.moneypipe.xyz/buffer_poster.png" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta2/css/all.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@3.0.0/dist/web3.min.js"></script>
+<script src="https://unpkg.com/moneypipe/dist/moneypipe.js"></script>
+<link href="/style.css" rel="stylesheet">
+<script>
+var web3 = new Web3(window.ethereum);
+var buffer = new Moneypipe.buffer({
+  web3: web3,
+  network: "main"
+})
+var factory = buffer.factory
+//var factory = new web3.eth.Contract(factory_abi, Config.address);
+var account;
+const calculate = async (parts) => {
+  let action = factory.methods.genesis(
+    "estimate", 
+    "0x3f0a849291225aaa5045174188c31a14f2a4de99a4d2d351398228d9459c3972",
+    "0xa4c8dad5af4a985df119b0281fff9d5d2d4d4fc214d07b9cd344ea0f9b11f015"
+  )
+  let data = action.encodeABI()
+  let o = {
+    from: account,
+    to: buffer.constants.factory.main,
+    data: data,
+  }
+  let gas = await action.estimateGas(o)
+  let _cost = await cost()
+  let eth = {}
+  let fiat = {}
+  // gwei/gas
+  for(let speed of ["fastest", "fast", "average", "safeLow"]) {
+    eth[speed] = _cost.gas[speed] * gas / Math.pow(10, 10)
+    fiat[speed] = eth[speed] * _cost.price
+  }
+  console.log(eth, fiat)
+  return {
+    eth, fiat
+  }
+}
+const cost = async () => {
+  let net = await this.web3.eth.net.getNetworkType()
+  let [gas, price] = await Promise.all([
+    fetch("https://ethgasstation.info/api/ethgasAPI.json").then((r) => {
+      return r.json()
+    }).then((r) => {
+      delete r.gasPriceRange
+      return r
+    }),
+    fetch(`https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=ethereum`).then((r) => {
+      return r.json()
+    }).then((r) => {
+      console.log("r", r)
+      return r[0].current_price
+    })
+  ])
+  return { gas, price }
+}
+const render = async () => {
+  let val = parseInt(document.querySelector("#estimate input[type=number]").value)
+  console.log("val", val)
+  let parts = []
+  for(let i=0; i<val; i++) {
+    parts.push({
+      account,
+      value: 1,
+      total: val
+    })
+  }
+  console.log("parts", parts)
+  debugger;
+  let { eth, fiat } = await calculate(parts)
+  let items = []
+  let speeds = ["safeLow", "average", "fast", "fastest"]
+  for(let speed of speeds) {
+    items.push(fiat[speed]) 
+  }
+  let header = "<tr>" + speeds.map((s) => {
+    return `<th>${s}</th>`
+  }).join("") + "</tr>"
+  let body = "<tr>" + items.map((i) => {
+    return `<td>${Math.floor(i)} USD</td>`
+  }).join("") + "</tr>"
+  document.querySelector("#estimated").innerHTML = header + body
+}
+document.addEventListener("DOMContentLoaded", async () => {
+  await ethereum.request({ method: 'eth_requestAccounts' })
+  let _res = await web3.eth.getAccounts()
+  account = _res[0];
+  document.querySelector("#estimate").addEventListener("submit", async (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    await render()
+  })
+  await render()
+})
+</script>
+</head>
+<body>
+<nav>
+  <div class='brand'>
+    <a href="https://moneypipe.xyz">moneypipe</a><span class='separator'>.</span><a href="/">buffer</a><span class='separator'>.</span><a href=".">rinkeby</a>
+  </div>
+  <div class='subtitle'>create a group to collect money and let members withdraw their share</div>
+  <div>
+    <a class='btn' href="https://discord.gg/BZtp5F6QQM"><i class="fa-brands fa-discord"></i> Discord</a>
+    <a class='btn' href="https://twitter.com/skogard"><i class="fa-brands fa-twitter"></i> Twitter</a>
+    <a class='btn' href='https://github.com/moneypipe-org'><i class="fa-brands fa-github"></i> GitHub</a>
+  </div>
+</nav>
+<div class='container'>
+  <div class='item'>
+    <h1>What is it?</h1>
+    <p>
+      The buffer engine stores ("buffers") all incoming funds and lets its members withdraw according to a pre-defined ratio.
+    </p>
+    <img class='screenshot' src="/buffer.png">
+  </div>
+  <div class='item'>
+    <h1>How much does it cost to create one?</h1>
+    <div id='estimate-form'>
+      <div>Enter the number of members in the group to calculate realtime gas price estimate right now</div>
+      <form id='estimate'>
+        <input type='number' placeholder='how many members in the group?' value=1000>
+        <input type='submit' value='calculate'>
+      </form>
+      <table id='estimated'></table>
+    </div>
+  </div>
+  <div class='item'>
+    <h1>What makes it special?</h1>
+    <h3>1. Virtual identity for groups</h3>
+    <p>Every group has an address. Send funds to it, reference the address in another contract, and so forth. You can treat the group as a single entity. Think of it like setting up a company with multiple founders, but much more casual. Once a company is set up, the company acts as an independent entity, and the founders share the profits.</p>
+    <h3>2. Instantly plug into any other contracts</h3>
+    <p>Pipe is versatile. Because it doesn't have a specific contract method you need to call, but is activated simply by sending money to it, you can use it in all kinds of contexts. You can use it as a minimal module in a DAO, as a recipient of an NFT contract royalty, as a way to split funds among NFT collaborators, and so on.</p>
+    <h3>3. Immutable => composable</h3>
+    <p>Pipe truly shines when it comes to composability. Because each pipe is immutable, you can trust that the split algorithm will never change in the future. Therefore can treat pipes as low level building blocks and build the addresses into oher contracts, and they will work deterministically forever.</p>
+  </div>
+  <div class='item'>
+    <h1>How to use?</h1>
+    <div class='sub'>
+      <h3>1. Create a group</h3>
+      <ol>
+        <li>Set up a group with multiple members, along with how much each member should take from the revenue.</li>
+        <li>Each group has a single representative address. Use the address anywhere you want</li>
+        <li>All incoming funds will be stored ("buffered") and made available for withdrawal</li>
+        <li>Each member can withdraw their portion based on the pre-programmed ratio</li>
+      </ol>
+      <img class='screenshot' src='/pipe.gif'>
+    </div>
+    <div class='sub'>
+      <h3>2. Withdraw as a member</h3>
+      <ol>
+        <li>If you're a member of a group, the landing page will display how much you can withdraw</li>
+        <li>Click "withdraw" to withdraw your money</li>
+      </ol>
+      <img class='screenshot' src="/bufferwithdraw.gif">
+    </div>
+  </div>
+  <div class='item'>
+    <h1>Why use buffer?</h1>
+    <ol>
+      <li><b>SAVE MONEY:</b> moneypipe utilizes the state of the art technology called "minimal proxy contract", which makes it as cheap as possible to deploy these "pipe" instances. If you were to deploy them on your own, it would be much more expensive.</li>
+      <li><b>100% FREE:</b> This contract has no business model attached. It's 100% public utility for everyone.</li>
+      <li><b>SUPER OPTIMIZED IMPLEMENTATION:</b> The contract has been obsessively optimized to lower the cost to deploying each group ("pipe"). There is no reason to write your own contract. Just use it.</li>
+    </ol>
+  </div>
+  <div class='item'>
+    <h1>NO 3RD PARTY</h1>
+    <p>Buffer is powered by merkle trees. Normally dealing with merkle trees is complex and requires offchain storage, and often results in some business running it as a centralized service. But not with Buffer. You DO NOT need to rely on a 3rd party. Here's how it works:</p>
+    <ol>
+      <li><b>MERKLE TREE ON IPFS:</b> The merkle tree is stored on IPFS</li>
+      <li><b>IPFS HASH STORED ON ETHEREUM:</b> The IPFS hash of the merkle tree is then stored on the smart contract.</li>
+    </ol>
+    <p>Therefore Buffer does not have any centralized cloud that stores your merkle trees, and has no 3rd party reliance. Everything is on IPFS and Ethereum. Anyone can run Buffer on their own.</p>
+  </div>
+  <div class='item'>
+    <h1>What is it for?</h1>
+    <ol>
+      <li><b>Manage split payments:</b> Instantly set up a "blockchain entity" that can auto-split any incoming funds and send to designated receiver addresses.</li>
+      <li><b>NFT royalty split:</b> Most NFT royalty implementations (including the EIP-2981 standard and Opensea) designates one receiver address for royalty payment. You can use this existing workflow but plug in a Pipe to automatically split royalty payments to multiple contributors.</li>
+      <li><b>Minimal building block for DAOs:</b> In many cases you need a super simple way to route funds across multiple addresses. Moneypipe is it.</li>
+      <li><b>Compose multiple groups:</b> You can stack multiple groups together to create a workflow. For example you can create buffer 1, and connect it to buffer 2.</li>
+      <li><b>Build into smart contracts:</b> Since every moneypipe is its own smart contract with own standalone address, you can easiliy integrate Moneypipe entity addresses into your other contracts to build sophisticated workflows.</li>
+    </ol>
+  </div>
+</div>
+</body>
+</html>

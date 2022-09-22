@@ -1,0 +1,95 @@
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="moneypipe buffer2" />
+<meta name="twitter:description" content="create a group to collect money and let members withdraw their share" />
+<meta name="twitter:image" content="https://buffer2.moneypipe.xyz/buffer_poster.png" />
+<meta property="og:url" content="https://buffer2.moneypipe.xyz" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="moneypipe buffer2" />
+<meta property="og:description" content="create a group to collect money and let members withdraw their share" />
+<meta property="og:image" content="https://buffer2.moneypipe.xyz/buffer_poster.png" />
+<script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@3.0.0/dist/web3.min.js"></script>
+<script src="https://unpkg.com/moneypipe/dist/moneypipe.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta2/css/all.min.css" rel="stylesheet">
+<link href="/style.css" rel="stylesheet">
+<script>
+var web3 = new Web3(window.ethereum);
+var account
+var buffer = new Moneypipe.buffer2({
+  web3: web3,
+  network: "goerli"
+})
+document.addEventListener("DOMContentLoaded", async () => {
+  try {
+    let account = await buffer.current_account()
+//    let groups = await buffer.groups(account)
+//    console.log("groups", groups)
+    let groups2 = await buffer.find({ creator: account })
+    console.log("groups2", groups2)
+
+    let g = []
+
+    let limit = 0;
+    for(let i=0; i<groups2.length; i++) {
+      let addr = groups2[i]
+      try {
+        let cid = await buffer.cid(addr)
+        g.push(addr)
+        let a = document.createElement("a")
+        a.setAttribute("href", "group#address=" + addr)
+        a.innerHTML = `${addr} <b id="_${addr}"></b>`
+        document.querySelector(".items").appendChild(a)
+      } catch (e) {
+        limit = i;
+        break;
+      }
+    }
+    document.querySelector(".loading").classList.add("hidden")
+    console.log("g", g)
+
+//    document.querySelector(".items").innerHTML = g.map((group) => {
+//      return `<a href="group#address=${group}">${group} <b id="_${group}"></b></a>`
+//    }).join("")
+
+    for(let i=0; i<=limit; i++) {
+      let addr = groups2[i]
+      try {
+        let merklescript = await buffer.merklescript(addr)
+        document.querySelector("#_" + addr).innerHTML = merklescript.title
+      } catch (e) {
+        console.log("error", e)
+        break;
+      }
+    }
+//    console.log("groups", groups)
+  } catch (e) {
+    alert(e.message)
+  }
+})
+</script>
+</head>
+<body>
+<nav>
+  <div class='brand'>
+    <a href="https://moneypipe.xyz">moneypipe</a><span class='separator'>.</span><a href="/">buffer2</a><span class='separator'>.</span><a href=".">goerli</a>
+  </div>
+  <div class='subtitle'>create a group to collect money and let members withdraw their share</div>
+  <div>
+    <a class='btn' href="../about">How does it work?</a>
+    <a class='btn' href="https://discord.gg/BZtp5F6QQM"><i class="fa-brands fa-discord"></i> Discord</a>
+    <a class='btn' href="https://twitter.com/skogard"><i class="fa-brands fa-twitter"></i> Twitter</a>
+    <a class='btn' href='https://github.com/moneypipe-org'><i class="fa-brands fa-github"></i> GitHub</a>
+    <a class='btn' href="https://buffer2.moneypipe.xyz/goerli/group#address=0x018782000F433d4dEfAb86dB90E1087a9aB64A46">Demo</a>
+    <a class='btn reverse' href="new">+ create a group</a>
+  </div>
+</nav>
+<div class='container'>
+  <div class='loading light'>
+    <i class="fa-solid fa-angle-up fa-flip"></i> loading...
+  </div>
+  <div class='items'></div>
+</div>
+</body>
+</html>
