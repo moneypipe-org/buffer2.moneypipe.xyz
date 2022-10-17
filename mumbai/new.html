@@ -39,6 +39,7 @@ var members;
 var buffer = new Moneypipe.buffer2({
   web3: web3,
   network: Constants.net,
+  chainId: Constants.chainId,
   ipfs: async (o) => {
     let cid = await fetch("https://microipfs.com/add", {
       method: "post",
@@ -174,7 +175,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 <body>
 <nav>
   <div class='brand'>
-    <a href="https://moneypipe.xyz">moneypipe</a><span class='separator'>.</span><a href="/">buffer2</a><span class='separator'>.</span><a href=".">goerli</a>
+    <a href="https://moneypipe.xyz">moneypipe</a><span class='separator'>.</span><a href="/">buffer2</a><span class='separator'>.</span><a href=".">mumbai</a>
   </div>
   <div class='subtitle'>create a group to collect money and let members withdraw their share</div>
   <div>

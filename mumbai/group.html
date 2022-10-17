@@ -38,7 +38,8 @@ var web3 = new Web3(window.ethereum);
 var template = Handlebars.compile(document.querySelector("#template").innerHTML)
 var buffer = new Moneypipe.buffer2({
   web3: web3,
-  network: Constants.net
+  network: Constants.net,
+  chainId: Constants.chainId,
 })
 var chart;
 var members = []
@@ -100,7 +101,7 @@ const get_tokens = async () => {
   }
   return addresses
 }
-let etherscan = "https://goerli.etherscan.io/address/"
+let etherscan = "https://etherscan.io/address/"
 const render = async (erc20s) => {
   console.log("render")
   try {
@@ -228,7 +229,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 <body>
 <nav>
   <div class='brand'>
-    <a href="https://moneypipe.xyz">moneypipe</a><span class='separator'>.</span><a href="/">buffer2</a><span class='separator'>.</span><a href=".">goerli</a>
+    <a href="https://moneypipe.xyz">moneypipe</a><span class='separator'>.</span><a href="/">buffer2</a><span class='separator'>.</span><a href=".">mumbai</a>
   </div>
   <div class='subtitle'>create a group to collect money and let members withdraw their share</div>
   <div>
